@@ -1,0 +1,202 @@
+.\"-
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)cat.1	8.3 (Berkeley) 5/2/95
+.\"
+.Dd 29 января 2013
+.Dt CAT 1
+.Os
+.Sh НАЗВАНИЕ
+.Nm cat
+.Nd конкатенация и вывод файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl belnstuv
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+чтение файлов последовательно и их запись в стандартный вывод.
+Операнды
+.Ar file
+обрабатываются в порядке командной строки.
+Если
+.Ar file
+представляет собой одиночный дефис
+.Pq Sq Fl
+или отсутствует,
+.Nm
+читается из стандартного ввода.
+Если
+.Ar file
+является сокетом домена
+.Ux ,
+.Nm
+подключается к нему и затем считывает данные до
+.Dv EOF .
+Это дополняет возможности привязки домена
+.Ux ,
+доступные в
+.Xr inetd 8 .
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl b
+Нумеровать непустые строки вывода, начиная с 1.
+.It Fl e
+Отображать непечатаемые символы (см. опцию
+.Fl v ),
+и отображать символ доллара
+.Pq Ql \&$
+в конце каждой строки.
+.It Fl l
+Установить эксклюзивную рекомендательную блокировку на файловый дескриптор стандартного вывода.
+Эта блокировка устанавливается с использованием
+.Xr fcntl 2
+с командой
+.Dv F_SETLKW .
+Если выходной файл уже заблокирован,
+.Nm
+будет заблокирован до тех пор, пока не будет получена блокировка.
+.It Fl n
+Нумеровать строки вывода, начиная с 1.
+.It Fl s
+Сжимать несколько последовательных пустых строк, чтобы вывод был однострочным.
+.It Fl t
+Отображать непечатаемые символы (см. опцию
+.Fl v ),
+и отображать символы табуляции как
+.Ql ^I .
+.It Fl u
+Отключить буферизацию вывода.
+.It Fl v
+Отображать непечатаемые символы, чтобы они были видимы.
+Символы управления отображаются как
+.Ql ^X
+для Control-X; символ удаления (восьмеричный 0177) отображается как
+.Ql ^? .
+.Пф Непечатаемые Tn ASCII
+символы (с установленным старшим битом) отображаются как
+.Ql M-
+(для мета) с последующим символом для младших 7 бит.
+.El
+.Sh КОД ЗАВЕРШЕНИЯ
+.Ex -std
+.Sh ПРИМЕРЫ
+Команда:
+.Pp
+.Dl "cat file1"
+.Pp
+выведет содержимое
+.Pa file1
+на стандартный вывод.
+.Pp
+Команда:
+.Pp
+.Dl "cat file1 file2 > file3"
+.Pp
+последовательно выведет содержимое
+.Pa file1
+и
+.Pa file2
+в файл
+.Pa file3 ,
+перезаписывая
+.Pa file3 ,
+если он уже существует.
+См. страницу руководства для вашей оболочки (например,
+.Xr sh 1 )
+для получения дополнительной информации о перенаправлении.
+.Pp
+Команда:
+.Pp
+.Dl "cat file1 - file2 - file3"
+.Pp
+выведет содержимое
+.Pa file1 ,
+затем данные, полученные из стандартного ввода, пока не будет получен символ
+.Dv EOF
+.Pq Sq ^D ,
+затем выведет содержимое
+.Pa file2 ,
+затем снова считывает и выводит содержимое из стандартного ввода, а затем наконец выводит содержимое
+.Pa file3 .
+Обратите внимание, что если стандартный ввод ссылается на файл, второй дефис в командной строке не окажет никакого эффекта, так как все содержимое файла уже было считано и выведено
+.Nm
+к моменту, когда он встретил первый операнд
+.Sq Fl .
+.Sh СМ. ТАКЖЕ
+.Xr head 1 ,
+.Xr more 1 ,
+.Xr pr 1 ,
+.Xr sh 1 ,
+.Xr tail 1 ,
+.Xr vis 1 ,
+.Xr zcat 1 ,
+.Xr fcntl 2 ,
+.Xr setbuf 3
+.Rs
+.%A Rob Pike
+.%T "UNIX Style, or cat -v Considered Harmful"
+.%J "USENIX Summer Conference Proceedings"
+.%D 1983
+.Re
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует спецификации
+.St -p1003.2-92 .
+.Pp
+Флаги
+.Op Fl belnstv
+являются расширениями к спецификации.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v1 .
+.An Dennis Ritchie
+разработал и написал первую страницу руководства.
+Похоже, что она была для
+.Nm .
+.Sh ОШИБКИ
+Из-за механизма языка оболочки, используемого для перенаправления вывода, команда
+.Dq Li cat file1 file2 > file1
+приведет к уничтожению исходных данных в
+.Pa file1 !
+.Pp
+Утилита
+.Nm
+не распознает многобайтовые символы, когда опция
+.Fl t
+или
+.Fl v
+активна.
